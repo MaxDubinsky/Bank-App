@@ -1,132 +1,122 @@
-#include <iostream>
-#include <vector>
 #include <algorithm>
+#include <iostream>
 #include <math.h>
+#include <vector>
 
 using namespace std;
 
-/*
-Розробте програму, що імітує систему управління банківським рахунком. Кожен із учасників вашої групи повинен реалізувати такі частини:
-
-1: Основний клас "Банківський рахунок" з методами для внесення та зняття коштів, перевірки балансу.
-  1: Plus
-  2: Minus
-  3: Check
-2: Клас "Транзакція" для відстеження всіх операцій рахунку.
-3: Клас "Клієнт" з методами для створення та управління рахунками.
-*/
-
 class Transaction {
 private:
-  string type;
-  double summa;
-public:
-  string getType() { return this->type; }
-  double getSumma() { return this->summa; }
+    string type;
+    double summa;
 
-  void setType(string type) { this->type = type; }
-  void setSumma(double summa) { this->summa = summa; }
+public:
+    Transaction() {
+        this->summa = 0.0;
+        this->type = "N/A";
+    }
+
+    string getType() { return this->type; }
+    double getSumma() { return this->summa; }
+
+    void setType(string type) { this->type = type; }
+    void setSumma(double summa) { this->summa = summa; }
 };
 
 class Transactions {
 private:
-  vector <Transaction> transactions;
+    vector<Transaction> transactions;
+
 public:
-  void addTransaction(Transaction transaction) {
-    this->transactions.push_back(transaction);
-  }
-/*
-  void checkTransactions() {
-    cout << "asd\n";
-    if (this->transactions.size() == 0) {
-      cout << "No transactions" << endl;
-    }
-    else {
-      for (int i = 0; i < this->transactions.size(); i++) {
-        cout << "Type: " << this->transactions[i].getType() << ", Summa:" << this->transactions[i].getSumma() << endl;
-      }
-    }
-  }
-*/
+    void addTransaction(Transaction tr) { this->transactions.push_back(tr); }
+    vector<Transaction> getTransactions() { return this->transactions; }
 };
 
 class BankAccount {
 private:
-  double balance;
-  Transactions transactions;
-  // Transactions transactions;
+    double balance;
+
 public:
-  BankAccount() {
-    balance = 0.0;
-  }
+    BankAccount() { balance = 0.0; }
 
-// ДОБАВИТИ КОШТИ
-void plusMoney() {
-    Transaction tr;
-    double summ;
-    cout << "Enter the amount of money you want to add: ";
-    try {
+    // ДОБАВИТИ КОШТИ
+    void plusMoney(Transactions& trs) {
+        Transaction tr;
+        double summ;
+        cout << "Enter the amount of money you want to add: ";
+        try {
+            cin >> summ;
+            tr.setType("Plus");
+            tr.setSumma(summ);
+            trs.addTransaction(tr);
+        }
+        catch (const exception& e) {
+            cout << "Error! " << e.what() << endl;
+        }
+        this->balance += summ;
+    }
+
+    // СНЯТИ КОШТИ
+    void minusMoney(Transactions& trs) {
+        Transaction tr;
+        double summ;
+        cout << "Enter the amount of money you want to minus: ";
         cin >> summ;
-        this->transactions.addTransaction(tr);
-    } catch (const exception &e) {
-        cout << "Error! " << e.what() << endl;
+        if (summ > this->balance) {
+            cout << "Error! You don't have enough money! Enter it again: " << endl;
+        }
+        else {
+            this->balance -= summ;
+            tr.setType("Minus");
+            tr.setSumma(summ);
+            trs.addTransaction(tr);
+        }
     }
-    this->balance += summ;
-    tr.setType("Plus");
-    tr.setSumma(summ);
-}
 
-// СНЯТИ КОШТИ
-void minusMoney() {
-    Transaction tr;
-    double summ;
-    cout << "Enter the amount of money you want to minus: ";
-    cin >> summ;
-    if (summ > this->balance) {
-        cout << "Error! You don't have enough money! Enter it again: " << endl;
-    } else {
-        this->balance -= summ;
-        tr.setType("Minus");
-        tr.setSumma(summ);
-        this->transactions.addTransaction(tr);
+    // ПЕРЕВІРКА БАЛАНСУ
+    void checkMoney() { cout << "Your money: " << this->balance << endl; }
+
+    void checkTransactions(Transactions& trs) {
+        if (trs.getTransactions().size() > 0) {
+            for (int i = 0; i < trs.getTransactions().size(); i++) {
+                cout << trs.getTransactions()[i].getType() << ", " << trs.getTransactions()[i].getSumma() << "$." << endl;
+            }
+        }
+        else {
+            cout << "No transactions. :(\n\n";
+        }
     }
-}
-
-
-  // ПЕРЕВІРКА БАЛАНСУ
-  void checkMoney() { 
-    cout << "Your money: " << this->balance << endl;
-  }
 };
 
 int main() {
-  BankAccount BA;
-  Transactions tr;
-  int choice = 0;
-  cout << "|-------------------------|\n";
-  cout << "|  1 - Add money          |\n";
-  cout << "|  2 - Withdraw money     |\n";
-  cout << "|  3 - Check balance      |\n";
-  cout << "|  4 - Check transactions |\n";
-  cout << "|-------------------------|\n";
-  do {
-    printf("Choose one of the options\n");
-    cin >> choice;
-    switch (choice) {
-      case 1:
-        BA.plusMoney();
-        continue;
-      case 2:
-        BA.minusMoney();
-        continue;
-      case 3:
-        BA.checkMoney();
-        continue;
-      case 4:
-        continue;
-      default:
-        perror("Choose one of variants that wrote on the table. Try again.");
-        continue;
-    }
-  } while (true);
+    BankAccount BA;
+    Transactions trs;
+    int choice = 0;
+    cout << "|-------------------------|\n";
+    cout << "|  1 - Add money          |\n";
+    cout << "|  2 - Withdraw money     |\n";
+    cout << "|  3 - Check balance      |\n";
+    cout << "|  4 - Check transactions |\n";
+    cout << "|-------------------------|\n";
+    do {
+        printf("Choose one of the options\n");
+        cin >> choice;
+        switch (choice) {
+        case 1:
+            BA.plusMoney(trs);
+            continue;
+        case 2:
+            BA.minusMoney(trs);
+            continue;
+        case 3:
+            BA.checkMoney();
+            continue;
+        case 4:
+            BA.checkTransactions(trs);
+            continue;
+        default:
+            perror("Choose one of variants that wrote on the table. Try again.");
+            continue;
+        }
+    } while (true);
 }
